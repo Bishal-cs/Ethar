@@ -1,12 +1,15 @@
 from interpreter import interpret
 from router import route
-from dotenv import dotenv_values
 
-env_val = dotenv_values()
-User = env_val.get("User_Name")
+print("Ethar is running... Type 'exit' to stop.")
 
 while True:
-    user_input = input(f"\n{User}: ")
+    user_input = input("You: ")
+
+    if user_input.lower() == "exit":
+        print("Shutting down Ethar...")
+        break
+
     parsed = interpret(user_input)
     response = route(parsed)
     print("Ethar:", response)

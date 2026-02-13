@@ -1,14 +1,21 @@
-# this is a simple router that takes a command and routes it to the appropriate handler based on the intent
+from devices.registry import devices
+
 def route(command: dict):
     intent = command["intent"]
+    device_name = command.get("device")
 
-    # based on the intent, we can route to the appropriate handler
-    if intent == "LIGHT_ON":
-        print("💡 Light is ON")
-        return "Light turned on."
+    if intent == "UNKNOWN":
+        return "I don't understand."
 
-    if intent == "LIGHT_OFF":
-        print("💡 Light is OFF")
-        return "Light turned off."
+    if device_name not in devices:
+        return "Device not found."
 
-    return "I don't understand."
+    device = devices[device_name]
+
+    if intent == "TURN_ON":
+        return device.turn_on()
+
+    if intent == "TURN_OFF":
+        return device.turn_off()
+
+    return "Unhandled command."

@@ -1,15 +1,13 @@
-# the function is use to interpret the text and return the meaning of the text
+from devices.registry import devices
+
 def interpret(text: str):
-    # convert the text to lower case
     text = text.lower()
 
-    # check if the the text contains the word...
-    if "turn on the light" in text:
-        return {"intent": "LIGHT_ON"}
-    
-    if "turn off the light" in text:
-        return {"intent": "LIGHT_OFF"}
-    
-    return {"intent": "UNKNOWN"}
-    
+    for device_name in devices.keys():
+        if device_name in text:
+            if "on" in text:
+                return {"intent": "TURN_ON", "device": device_name}
+            if "off" in text:
+                return {"intent": "TURN_OFF", "device": device_name}
 
+    return {"intent": "UNKNOWN"}
