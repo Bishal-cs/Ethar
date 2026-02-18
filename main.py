@@ -1,10 +1,12 @@
-from core.llm.llm_interpreter import LLMInterpreter
+from core.llm.command_parser import CommandParser
+from core.llm.dialogue_model import DialogueModel
 from router import route_command
 from config.settings import AI_NAME
 
 
 def main():
-    interpreter = LLMInterpreter()
+    parser = CommandParser()
+    dialogue = DialogueModel()
 
     print(f"{AI_NAME} is running...")
 
@@ -14,11 +16,19 @@ def main():
         if user_input.lower() == "exit":
             break
 
-        command = interpreter.interpret(user_input)
-        print("DEBUG:", command)
+        command = parser.process(user_input)
 
-        response = route_command(command)
-        print(f"{AI_NAME}: {response}")
+        if command["intent"] != "NONE":
+            device_result = route_command(command)
+
+            final_response = dialogue.process(
+                f"The system executed this action: {device_result}. "
+                f"Respond naturally."
+            )
+        else:
+            final_response = dialogue.process(user_input)
+
+        print(f"{AI_NAME}: {final_response}")
 
 
 if __name__ == "__main__":

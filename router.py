@@ -1,11 +1,12 @@
 from devices.registry import devices
 
-def route_command(command: dict):
-    intent = command["intent"]
+
+def route_command(command: dict) -> str:
+    intent = command.get("intent")
     device_name = command.get("device")
 
-    if intent == "UNKNOWN":
-        return "I don't understand."
+    if intent == "NONE":
+        return "Unhandled command."
 
     if device_name not in devices:
         return "Device not found."
@@ -15,7 +16,10 @@ def route_command(command: dict):
     if intent == "TURN_ON":
         return device.turn_on()
 
-    if intent == "TURN_OFF":
+    elif intent == "TURN_OFF":
         return device.turn_off()
+
+    elif intent == "STATUS":
+        return device.status()
 
     return "Unhandled command."

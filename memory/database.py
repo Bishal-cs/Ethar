@@ -1,53 +1,71 @@
 import sqlite3
-import os
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "ethar.db")
+from pathlib import Path
 
 
-def init_db():
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+DB_PATH = Path("memory/ethar.db")
 
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS devices (
-            name TEXT PRIMARY KEY,
-            state TEXT
+
+class MemoryDB:
+    def __init__(self):
+        DB_PATH.parent.mkdir(exist_ok=True)
+        self.conn = sqlite3.connect(DB_PATH)
+        self._create_tables()
+
+    def _create_tables(self):
+        self.conn.execute("""
+        CREATE TABLE IF NOT EXISTS conversations (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            role TEXT NOT NULL,
+            content TEXT NOT NULL
         )
-    """)
+        """)
 
-    conn.commit()
-    conn.close()
+        self.conn.execute("""
+        CREATE TABLE IF NOT EXISTS device_states (
+            device_name TEXT PRIMARY KEY,
+            state TEXT NOT NULL
+        )
+        """)
 
+        self.conn.commit()
 
-# 🔥 Call init immediately when file loads
-init_db()
+    # -----------------------
+    # Conversation memory
+    # -----------------------
 
+    def save_message(self, role: str, content: str):
+        self.conn.execute(
+            "INSERT INTO conversations (role, content) VALUES (?, ?)",
+            (role, content)
+        )
+        self.conn.commit()
 
-def save_device_state(name, state):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
+    def load_recent(self, limit=20):
+        cursor = self.conn.execute("""
+        SELECT role, content FROM conversations
+        ORDER BY id DESC
+        LIMIT ?
+        """, (limit,))
+        rows = cursor.fetchall()
+        rows.reverse()
+        return [{"role": r[0], "content": r[1]} for r in rows]
 
-    cursor.execute("""
-        INSERT INTO devices (name, state)
+    # -----------------------
+    # Device state memory
+    # -----------------------
+
+    def save_device_state(self, device_name: str, state: str):
+        self.conn.execute("""
+        INSERT INTO device_states (device_name, state)
         VALUES (?, ?)
-        ON CONFLICT(name)
+        ON CONFLICT(device_name)
         DO UPDATE SET state=excluded.state
-    """, (name, state))
+        """, (device_name, state))
+        self.conn.commit()
 
-    conn.commit()
-    conn.close()
-
-
-def load_device_state(name):
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT state FROM devices WHERE name = ?", (name,))
-    result = cursor.fetchone()
-
-    conn.close()
-
-    if result:
-        return result[0]
-    return None
+    def load_device_state(self, device_name: str):
+        cursor = self.conn.execute("""
+        SELECT state FROM device_states WHERE device_name = ?
+        """, (device_name,))
+        row = cursor.fetchone()
+        return row[0] if row else None
