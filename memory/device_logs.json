@@ -1,0 +1,20 @@
+[
+    {
+        "timestamp": "2026-02-19T12:20:01.976616",
+        "device": "Living Room Light",
+        "action": "TURN_ON",
+        "result": "Living Room Light turned ON."
+    },
+    {
+        "timestamp": "2026-02-19T12:22:00.017313",
+        "device": "Living Room Light",
+        "action": "TURN_OFF",
+        "result": "Living Room Light turned OFF."
+    },
+    {
+        "timestamp": "2026-02-19T12:22:11.997061",
+        "device": "Living Room Light",
+        "action": "TURN_ON",
+        "result": "Living Room Light turned ON."
+    }
+]

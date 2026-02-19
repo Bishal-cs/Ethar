@@ -8,19 +8,28 @@ class DialogueModel:
         self.llm = LLMClient()
         self.memory = MemoryDB()
 
-        self.system_prompt = f"""
+    def build_system_prompt(self):
+        name = self.memory.get_profile("name")
+
+        profile_info = ""
+        if name:
+            profile_info = f"The user's name is {name}. Address them naturally when appropriate."
+
+        return f"""
 You are {AI_NAME}, an intelligent home assistant.
 
-You remember previous conversations.
+{profile_info}
+
 Speak naturally and professionally.
 Keep responses concise.
 Do not mention being an AI model.
 """
 
     def process(self, text: str) -> str:
-        messages = [{"role": "system", "content": self.system_prompt}]
+        system_prompt = self.build_system_prompt()
 
-        # Load memory from SQLite
+        messages = [{"role": "system", "content": system_prompt}]
+
         history = self.memory.load_recent(limit=20)
         messages += history
 
@@ -29,7 +38,6 @@ Do not mention being an AI model.
         try:
             response = self.llm.generate(messages, temperature=0.6, max_tokens=300)
 
-            # Save to SQLite
             self.memory.save_message("user", text)
             self.memory.save_message("assistant", response)
 

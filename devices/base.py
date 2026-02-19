@@ -1,31 +1,30 @@
 from memory.database import MemoryDB
+from core.device_logger import DeviceLogger
 
+memory = MemoryDB()
 
 class Device:
     def __init__(self, name):
         self.name = name
-        self.memory = MemoryDB()
-
-        stored_state = self.memory.load_device_state(self.name)
-        self.state = stored_state if stored_state else "OFF"
+        self.state = memory.load_device_state(name) or "OFF"
+        self.logger = DeviceLogger()
 
     def turn_on(self):
         if self.state == "ON":
             return f"{self.name} is already ON."
-
         self.state = "ON"
-        self.memory.save_device_state(self.name, self.state)
+        memory.save_device_state(self.name, self.state)
+        result = f"{self.name} turned ON."
         print(f"⚡ {self.name} is ON")
-        return f"{self.name} turned ON."
+        self.logger.log(self.name, "TURN_ON", result)
+        return result
 
     def turn_off(self):
         if self.state == "OFF":
             return f"{self.name} is already OFF."
-
         self.state = "OFF"
-        self.memory.save_device_state(self.name, self.state)
+        memory.save_device_state(self.name, self.state)
+        result = f"{self.name} turned OFF."
         print(f"⚡ {self.name} is OFF")
-        return f"{self.name} turned OFF."
-
-    def status(self):
-        return f"{self.name} is {self.state}."
+        self.logger.log(self.name, "TURN_OFF", result)
+        return result
