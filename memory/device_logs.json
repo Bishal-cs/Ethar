@@ -16,5 +16,41 @@
         "device": "Living Room Light",
         "action": "TURN_ON",
         "result": "Living Room Light turned ON."
+    },
+    {
+        "timestamp": "2026-02-22T16:45:59.454008",
+        "device": "Living Room Light",
+        "action": "TURN_OFF",
+        "result": "Living Room Light turned OFF."
+    },
+    {
+        "timestamp": "2026-02-22T16:46:27.152329",
+        "device": "Fan",
+        "action": "TURN_ON",
+        "result": "Fan turned ON."
+    },
+    {
+        "timestamp": "2026-02-22T16:47:01.180059",
+        "device": "Living Room Light",
+        "action": "TURN_ON",
+        "result": "Living Room Light turned ON."
+    },
+    {
+        "timestamp": "2026-02-22T16:53:54.162072",
+        "device": "Fan",
+        "action": "TURN_OFF",
+        "result": "Fan turned OFF."
+    },
+    {
+        "timestamp": "2026-02-22T16:55:22.300032",
+        "device": "Living Room Light",
+        "action": "TURN_OFF",
+        "result": "Living Room Light turned OFF."
+    },
+    {
+        "timestamp": "2026-02-22T17:22:35.819702",
+        "device": "Fan",
+        "action": "TURN_ON",
+        "result": "Fan turned ON."
     }
 ]

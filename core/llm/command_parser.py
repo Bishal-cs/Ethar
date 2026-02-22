@@ -54,8 +54,9 @@ If no device control exists:
                     device = device.lower().strip()
 
                 return {"intent": intent, "device": device}
-
+            
             return {"intent": "NONE", "device": None}
 
         except Exception:
             return {"intent": "NONE", "device": None}
+    

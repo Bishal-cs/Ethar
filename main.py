@@ -5,15 +5,16 @@ from core.llm.dialogue_model import DialogueModel
 from router import route_command
 from config.settings import AI_NAME
 from memory.database import MemoryDB
-from core.scheduler import Scheduler
+from core.scheduler import TaskExecutor
+from datetime import datetime
 
 def main():
     parser = CommandParser()
     dialogue = DialogueModel()
     memory = MemoryDB()
-    scheduler = Scheduler()
+    scheduler = TaskExecutor()
 
-    print(f"{AI_NAME} is running...")
+    print(dialogue.process("You are starting up. Say hi to the user."))
 
     while True:
         user_input = input("You: ")
@@ -33,32 +34,33 @@ def main():
         # ----------------------------
         if "who am i" in user_input.lower():
             name = memory.get_profile("name")
-            print(f"{AI_NAME}: Your name is {name}." if name else f"{AI_NAME}: I don't know your name yet.")
+            print(dialogue.process(f"{AI_NAME}: Your name is {name}." if name else f"{AI_NAME}: I don't know your name yet."))
             continue
+
+        if "date" in user_input.lower():
+            today = datetime.now().strftime("%d %B %Y")
+            print(dialogue.process(f"Today's date is {today}."))
 
         # ----------------------------
         # Delayed commands
         # ----------------------------
         delay_match = re.search(r"after (\d+) (minute|minutes|min)", user_input.lower())
+
         if delay_match:
             minutes = int(delay_match.group(1))
-            delay_seconds = minutes * 60
+            execute_time = datetime.now() + timedelta(minutes=minutes)
 
             command = parser.process(user_input)
+
             if command["intent"] != "NONE":
-                device_name = command["device"]
-                action = command["intent"]
-                execute_time = datetime.now() + timedelta(seconds=delay_seconds)
-                memory.add_scheduled_task(device_name, action, execute_time.isoformat())
+                memory.add_scheduled_task(
+                    command["device"],
+                    command["intent"],
+                    execute_time.isoformat()
+                )
 
-                def delayed_action():
-                    route_command(command)
-                    memory.complete_task(device_name, action)
-
-                scheduler.schedule(delay_seconds, delayed_action)
-                print(f"{AI_NAME}: Timer set for {minutes} minutes.")
+                print(dialogue.process(f"{AI_NAME}: Timer set for {minutes} minutes."))
                 continue
-
         # ----------------------------
         # Normal command
         # ----------------------------

@@ -11,6 +11,12 @@ def route_command(command):
 
     if intent == "TURN_ON":
         return device.turn_on()
+        
+    if command["intent"] == "TURN_ON_ALL":
+        for device in devices.values():
+            device.turn_on()
+        return "All devices turned ON."
+    
     elif intent == "TURN_OFF":
         return device.turn_off()
     else:

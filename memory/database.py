@@ -119,10 +119,15 @@ class MemoryDB:
         """, ("COMPLETED", device, action, "PENDING"))
         self.conn.commit()
 
-    def get_pending_tasks(self):
+    def get_due_tasks(self):
+        from datetime import datetime
+        now = datetime.now().isoformat()
+
         cursor = self.conn.execute("""
         SELECT device, action, execute_at
         FROM scheduled_tasks
         WHERE status = 'PENDING'
-        """)
+        AND execute_at <= ?
+        """, (now,))
+
         return cursor.fetchall()
